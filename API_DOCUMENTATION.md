@@ -210,11 +210,20 @@ POST /api/v1/sessions/{session_id}/message
 
 **Conversation Stages:**
 - `initial` - Starting the conversation
-- `collecting_basics` - Gathering agent type, goals, and tone
+- `collecting_basics` - Deep dive into agent requirements (6-8+ detailed questions about:
+  - Agent type and purpose
+  - Detailed goals and behaviors
+  - Tone and personality
+  - Target users and use cases
+  - Greeting style and conversation flow
+  - Example interactions
+  - Constraints and edge cases
+  - Escalation rules and success criteria
+  - Brand voice and verbosity level)
 - `exploring_tools` - Asking about tool integrations
 - `configuring_tools` - Setting up tool configurations
-- `reviewing_workflow` - Showing the generated workflow
-- `finalizing` - Final confirmation
+- `reviewing_workflow` - Comprehensive summary & confirmation (AI summarizes everything it understood, gets user confirmation, then shows workflow diagram)
+- `finalizing` - Final confirmation and prompt generation
 - `completed` - Session complete
 
 **cURL Example:**
@@ -398,6 +407,14 @@ GET /api/v1/workflows/{session_id}/visualize
 ```
 
 **Description:** Get visual representations of the workflow.
+
+**⚠️ When to Call:**
+- **Stage: `reviewing_workflow`** - Call this endpoint when the conversation reaches the `reviewing_workflow` stage
+- **AI includes workflow** - The AI's response will include the workflow summary in the message
+- **Optional call** - You can call this endpoint to get the full Mermaid diagram and text summary for rendering
+- **Frontend rendering** - Use this if you want to render the Mermaid diagram separately from the chat
+
+**Note:** The workflow is automatically generated when entering `reviewing_workflow` stage. The AI's response includes a text summary, and you can optionally call this endpoint to get the full Mermaid diagram for visual rendering.
 
 **Path Parameters:**
 - `session_id` (string, required): The session ID
@@ -735,6 +752,48 @@ curl http://localhost:8000/api/v1/prompts/550e8400-e29b-41d4-a716-446655440000/e
 ---
 
 ## Complete Usage Flow
+
+### Understanding the Conversation Flow
+
+The AI Agent Builder uses a **comprehensive discovery process** to fully understand your requirements before generating outputs:
+
+#### Flow Overview
+
+1. **Initial** → Start conversation
+2. **Collecting Basics** → 6-8+ detailed questions about:
+   - What type of agent?
+   - What specific tasks and behaviors?
+   - What tone and personality?
+   - Who are the target users?
+   - How should it greet users?
+   - What's the conversation flow?
+   - Example interactions?
+   - Any constraints or limitations?
+   - Edge cases to handle?
+   - Escalation rules?
+   - Success criteria?
+   - Brand voice and verbosity?
+3. **Exploring Tools** → Need external integrations?
+4. **Configuring Tools** → (If yes) Set up tool details
+5. **Reviewing Workflow** → AI summarizes understanding, gets confirmation, shows diagram
+6. **Finalizing** → Generate prompts
+7. **Completed** → Download configuration
+
+#### When to Call Which Endpoint
+
+| Stage | Endpoint to Call | When | Purpose |
+|-------|-----------------|------|---------|
+| Initial | `POST /sessions/create` | On page load / new chat | Get session ID and first message |
+| All stages | `POST /sessions/{id}/message` | Every user message | Continue conversation |
+| Reviewing Workflow | `GET /workflows/{id}/visualize` | When `stage === "reviewing_workflow"` | Get Mermaid diagram for rendering (optional, workflow summary is in AI message) |
+| Finalizing | `POST /prompts/{id}/generate` | When user approves workflow | Generate platform-specific prompts |
+| Completed | `GET /prompts/{id}/export/download` | When ready to download | Download configuration file |
+
+**Key Points:**
+- The AI asks **many detailed questions** during `collecting_basics` - be patient!
+- The workflow appears **after confirmation** in `reviewing_workflow` stage
+- You **don't need** to call `/visualize` unless you want to render the Mermaid diagram
+- The AI's message includes the workflow summary automatically
 
 ### Step-by-Step Example
 

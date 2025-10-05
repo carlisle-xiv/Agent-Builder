@@ -11,7 +11,7 @@ from datetime import datetime
 from src.database import get_db
 from src.redis_client import redis_client
 from src.session.models import Session
-from src.session.schemas import SessionState
+from src.session.schemas import SessionState, ConversationStage
 from src.workflow.models import Workflow
 from src.workflow.schemas import (
     WorkflowReviewRequest,
@@ -135,14 +135,51 @@ async def review_workflow(
 async def visualize_workflow(session_id: str, db: DBSession = Depends(get_db)):
     """
     Get visual representations of the workflow.
+    If workflow doesn't exist yet, creates it from session state.
     """
 
     workflow = db.query(Workflow).filter(Workflow.session_id == session_id).first()
+
     if not workflow:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Workflow for session {session_id} not found",
+        # Try to create workflow from session state (fallback)
+        session_data = redis_client.get_session(session_id)
+        if not session_data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Session {session_id} not found or expired",
+            )
+
+        session_state = SessionState(**session_data)
+
+        # Only create if in review stage or later
+        if session_state.stage not in [
+            ConversationStage.REVIEWING_WORKFLOW,
+            ConversationStage.FINALIZING,
+            ConversationStage.COMPLETED,
+        ]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Workflow not ready yet. Current stage: {session_state.stage}",
+            )
+
+        # Synthesize and save workflow
+        synthesizer = get_synthesizer()
+        workflow_data = synthesizer.synthesize(session_state)
+        mermaid = generate_mermaid_diagram(workflow_data)
+
+        workflow = Workflow(
+            id=str(uuid.uuid4()),
+            session_id=session_id,
+            agent_type=workflow_data.agent_type,
+            goals=workflow_data.goals,
+            tone=workflow_data.tone,
+            use_tools=workflow_data.use_tools,
+            workflow_json=workflow_data.model_dump_json(),
+            mermaid_diagram=mermaid,
+            is_approved=False,
         )
+        db.add(workflow)
+        db.commit()
 
     workflow_data = WorkflowData(**json.loads(workflow.workflow_json))
 

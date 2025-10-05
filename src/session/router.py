@@ -18,6 +18,9 @@ from src.session.schemas import (
     ConversationStage,
 )
 from src.orchestrator import get_orchestrator
+from src.workflow.models import Workflow
+from src.workflow.synthesizer import get_synthesizer
+from src.workflow.visualizer import generate_mermaid_diagram
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -124,6 +127,7 @@ async def send_message(
     updated_state = result["updated_state"]
     is_complete = result["is_complete"]
     stage_changed = result["stage_changed"]
+    new_stage = result.get("new_stage")
 
     # Add AI response to history
     updated_state.conversation_history.append(
@@ -134,12 +138,46 @@ async def send_message(
         }
     )
 
+    # Auto-create workflow in database when entering REVIEWING_WORKFLOW stage
+    if stage_changed and new_stage == ConversationStage.REVIEWING_WORKFLOW:
+        # Check if workflow already exists
+        existing_workflow = (
+            db.query(Workflow).filter(Workflow.session_id == session_id).first()
+        )
+
+        if not existing_workflow:
+            print(f"💾 Auto-creating workflow in database for session {session_id}")
+
+            # Synthesize workflow from session state
+            synthesizer = get_synthesizer()
+            workflow_data = synthesizer.synthesize(updated_state)
+
+            # Generate visualization
+            mermaid_diagram = generate_mermaid_diagram(workflow_data)
+
+            # Create workflow record in PostgreSQL
+            db_workflow = Workflow(
+                id=str(uuid.uuid4()),
+                session_id=session_id,
+                agent_type=workflow_data.agent_type,
+                goals=workflow_data.goals,
+                tone=workflow_data.tone,
+                use_tools=workflow_data.use_tools,
+                workflow_json=workflow_data.model_dump_json(),
+                mermaid_diagram=mermaid_diagram,
+                is_approved=False,
+            )
+            db.add(db_workflow)
+            print(
+                f"✅ Workflow created with {len(workflow_data.nodes)} nodes and {len(workflow_data.edges)} edges"
+            )
+
     # Update Redis with new state
     redis_client.set_session(session_id, updated_state.model_dump(mode="json"))
 
     # Update DB timestamp and status
     db_session.updated_at = datetime.utcnow()
-    
+
     # Save detailed agent specifications to PostgreSQL
     db_session.agent_type = updated_state.agent_type
     db_session.goals = updated_state.goals
@@ -152,8 +190,10 @@ async def send_message(
     db_session.brand_voice = updated_state.brand_voice
     db_session.verbosity_level = updated_state.verbosity_level
     db_session.additional_notes = updated_state.additional_notes
-    db_session.use_tools = str(updated_state.use_tools) if updated_state.use_tools is not None else None
-    
+    db_session.use_tools = (
+        str(updated_state.use_tools) if updated_state.use_tools is not None else None
+    )
+
     # Store arrays as JSON strings
     if updated_state.example_interactions:
         db_session.example_interactions = json.dumps(updated_state.example_interactions)
@@ -161,11 +201,11 @@ async def send_message(
         db_session.constraints = json.dumps(updated_state.constraints)
     if updated_state.edge_cases:
         db_session.edge_cases = json.dumps(updated_state.edge_cases)
-    
+
     if is_complete:
         db_session.status = DBSessionStatus.COMPLETED
         db_session.completed_at = datetime.utcnow()
-    
+
     db.commit()
 
     return MessageResponse(

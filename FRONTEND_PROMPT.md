@@ -184,10 +184,16 @@ When agent is complete:
 3. **Check for workflow stage**:
    ```javascript
    If stage === "reviewing_workflow":
+     // The AI message already includes the workflow summary!
+     // Optional: Call visualize endpoint to get Mermaid diagram
      GET /workflows/{session_id}/visualize
      Response: { mermaid_diagram, text_summary }
-     → Render Mermaid diagram
-     → Show workflow section
+     → Render Mermaid diagram in chat
+     → Show workflow preview section
+     
+     Note: The workflow is automatically generated when entering this stage.
+     The AI's response includes a comprehensive summary of what was understood.
+     User must confirm before seeing the visual diagram.
    ```
 
 4. **When complete**:
@@ -264,33 +270,57 @@ type ExportFormat = 'json' | 'yaml' | 'markdown' | 'text';
    - Reads initial AI greeting
    - Types first message: "I want a customer support agent"
 
-2. **AI asks about goals**
-   - User responds: "Help customers with orders and returns"
-   - Progress bar shows stage 2/5
+2. **AI asks detailed questions (Stage: collecting_basics)**
+   - **This stage involves 6-8+ questions!** Set user expectations
+   - AI asks about agent type and purpose
+   - AI asks about specific goals and behaviors
+   - AI asks about tone and personality
+   - AI asks about target users
+   - AI asks about greeting style
+   - AI asks about conversation flow expectations
+   - AI asks for example interactions
+   - AI asks about constraints and limitations
+   - AI asks about edge cases to handle
+   - AI asks about escalation rules
+   - AI asks about success criteria
+   - AI asks about brand voice and verbosity
+   - User responds to each question
+   - Progress bar shows stage 2/5 throughout
+   - **Expect this to take 6-10+ message exchanges**
 
-3. **AI asks about tone**
-   - User responds: "Professional but friendly"
-   - Progress bar advances
-
-4. **AI asks about tools**
+3. **AI asks about tools (Stage: exploring_tools)**
    - User responds: "No, I don't need external tools"
-   - Progress bar advances
+   - Progress bar advances to stage 3/5
 
-5. **AI shows workflow**
-   - Mermaid diagram appears in chat
+4. **AI summarizes understanding (Stage: reviewing_workflow)**
+   - AI presents a comprehensive summary of everything understood
+   - AI asks: "Did I understand everything correctly?"
+   - User confirms: "Yes, that's exactly what I want!"
+   - Progress bar shows stage 4/5
+
+5. **AI shows workflow diagram**
+   - Mermaid diagram appears in chat (call `/visualize` endpoint)
    - Collapsible workflow preview section
-   - AI asks: "Does this look good?"
+   - AI asks: "Does this workflow look good?"
 
-6. **User approves**
+6. **User approves workflow**
    - User responds: "Yes, looks perfect!"
+   - Progress bar advances to stage 5/5
    - Download section appears
 
-7. **User selects format and downloads**
+7. **User selects format and downloads (Stage: completed)**
    - Selects "ElevenLabs (Voice)" format
    - Selects "JSON" export format
    - Clicks download button
    - File downloads: `customer_support_agent.json`
    - Success message appears
+   - Option to start a new agent
+
+**Important UX Notes:**
+- The `collecting_basics` stage is **intentionally thorough** - show a message like "The AI will ask several detailed questions to fully understand your needs"
+- Consider showing a sub-progress indicator for collecting_basics (e.g., "Question 3 of ~8")
+- Don't let users think it's stuck - show typing indicators and smooth transitions
+- The comprehensive summary before workflow is a **confirmation checkpoint** - make it clear
 
 ---
 

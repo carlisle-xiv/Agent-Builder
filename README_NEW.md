@@ -200,12 +200,23 @@ PROTOTYPE/
 
 ## 🎯 How It Works
 
-### 1. **Conversation Phase**
-The AI asks intelligent questions to understand your needs:
+### 1. **Comprehensive Discovery Phase**
+The AI conducts a thorough interview (6-8+ questions) to deeply understand your needs:
 - What type of agent do you want?
-- What should it do?
-- How should it sound?
+- What specific tasks and behaviors?
+- What tone and personality?
+- Who are your target users?
+- How should it greet users?
+- What's the expected conversation flow?
+- Example interactions?
+- Any constraints or limitations?
+- Edge cases to handle?
+- Escalation rules?
+- Success criteria?
+- Brand voice and verbosity preferences?
 - Do you need tool integrations?
+
+**Note:** This comprehensive approach ensures the final output matches your exact requirements
 
 ### 2. **Workflow Synthesis**
 The system creates a structured workflow:

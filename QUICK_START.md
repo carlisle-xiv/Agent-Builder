@@ -105,31 +105,70 @@ BASE = "https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
 # 1. Create session
 r = requests.post(f"{BASE}/sessions/create", json={})
 sid = r.json()["session_id"]
+print(f"Session created: {sid}")
 
 # 2. Tell AI what you want
 r = requests.post(f"{BASE}/sessions/{sid}/message",
     json={"message": "I want a customer support agent"})
-print(r.json()["ai_response"])
+print(f"AI: {r.json()['ai_response']}")
 
-# 3. Define goals
-r = requests.post(f"{BASE}/sessions/{sid}/message",
-    json={"message": "Help with orders and returns"})
+# 3-10. Answer detailed questions
+# The AI will ask 6-8+ comprehensive questions about:
+# - Specific goals and behaviors
+# - Tone and personality
+# - Target users
+# - Greeting style
+# - Conversation flow
+# - Example interactions
+# - Constraints and edge cases
+# - Escalation rules
+# - Success criteria
+# - Brand voice and verbosity
 
-# 4. Define tone
-r = requests.post(f"{BASE}/sessions/{sid}/message",
-    json={"message": "Professional but friendly"})
+# Example responses:
+questions_and_answers = [
+    "Help customers with order tracking, returns, and product questions",
+    "Professional but warm and empathetic",
+    "E-commerce customers who need support",
+    "Friendly greeting and ask how I can help",
+    "Understand issue, provide solution, confirm satisfaction",
+    "Example: User asks about return policy, agent explains clearly",
+    "Can't process refunds over $500 without supervisor",
+    "Handle angry customers with extra empathy",
+    "Escalate to human if customer explicitly requests",
+    "Success is resolved issue + satisfied customer",
+    "Match our brand: helpful, clear, never pushy",
+    "Concise but thorough responses"
+]
 
-# 5. Tools
+for i, answer in enumerate(questions_and_answers, 3):
+    r = requests.post(f"{BASE}/sessions/{sid}/message",
+        json={"message": answer})
+    print(f"{i}. AI: {r.json()['ai_response'][:50]}...")
+    if r.json().get("stage") == "exploring_tools":
+        break
+
+# Answer about tools
 r = requests.post(f"{BASE}/sessions/{sid}/message",
     json={"message": "No external tools needed"})
 
-# 6. Download agent config
+# AI will show comprehensive summary - confirm it
+r = requests.post(f"{BASE}/sessions/{sid}/message",
+    json={"message": "Yes, that's perfect!"})
+
+# Approve the workflow
+r = requests.post(f"{BASE}/sessions/{sid}/message",
+    json={"message": "The workflow looks great!"})
+
+# Download agent config
 r = requests.get(f"{BASE}/prompts/{sid}/export/download?format=json")
 with open("my_agent.json", "w") as f:
     f.write(r.text)
 
 print("✅ Agent created and saved to my_agent.json!")
 ```
+
+**Important:** The conversation involves **many exchanges** (typically 10-15+ messages). The AI asks comprehensive questions to ensure the final output matches your exact needs.
 
 ---
 
