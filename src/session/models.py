@@ -38,5 +38,22 @@ class Session(Base):
     workflow_json = Column(Text, nullable=True)
     tools_config = Column(Text, nullable=True)
 
+    # Store detailed agent specifications
+    agent_type = Column(String, nullable=True)
+    goals = Column(Text, nullable=True)
+    tone = Column(String, nullable=True)
+    target_users = Column(Text, nullable=True)
+    greeting_style = Column(Text, nullable=True)
+    conversation_flow = Column(Text, nullable=True)
+    example_interactions = Column(Text, nullable=True)  # JSON array as text
+    constraints = Column(Text, nullable=True)  # JSON array as text
+    edge_cases = Column(Text, nullable=True)  # JSON array as text
+    escalation_rules = Column(Text, nullable=True)
+    success_criteria = Column(Text, nullable=True)
+    brand_voice = Column(Text, nullable=True)
+    verbosity_level = Column(String, nullable=True)
+    additional_notes = Column(Text, nullable=True)
+    use_tools = Column(String, nullable=True)  # "true", "false", or null
+
     def __repr__(self):
-        return f"<Session(id={self.id}, status={self.status})>"
+        return f"<Session(id={self.id}, status={self.status}, agent_type={self.agent_type})>"

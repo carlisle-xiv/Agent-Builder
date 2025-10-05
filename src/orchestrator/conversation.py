@@ -131,6 +131,33 @@ class ConversationOrchestrator:
             if "tone" not in session_state.collected_fields:
                 session_state.collected_fields.append("tone")
 
+        # Update detailed specifications
+        if extracted.target_users:
+            session_state.target_users = extracted.target_users
+        if extracted.greeting_style:
+            session_state.greeting_style = extracted.greeting_style
+        if extracted.conversation_flow:
+            session_state.conversation_flow = extracted.conversation_flow
+        if extracted.example_interactions:
+            session_state.example_interactions.extend(extracted.example_interactions)
+        if extracted.constraints:
+            session_state.constraints.extend(extracted.constraints)
+        if extracted.edge_cases:
+            session_state.edge_cases.extend(extracted.edge_cases)
+        if extracted.escalation_rules:
+            session_state.escalation_rules = extracted.escalation_rules
+        if extracted.success_criteria:
+            session_state.success_criteria = extracted.success_criteria
+        if extracted.brand_voice:
+            session_state.brand_voice = extracted.brand_voice
+        if extracted.verbosity_level:
+            session_state.verbosity_level = extracted.verbosity_level
+        if extracted.additional_notes:
+            if session_state.additional_notes:
+                session_state.additional_notes += f"\n{extracted.additional_notes}"
+            else:
+                session_state.additional_notes = extracted.additional_notes
+
         # Update tool usage
         if extracted.use_tools is not None and llm_response.confidence.use_tools > 0.6:
             session_state.use_tools = extracted.use_tools

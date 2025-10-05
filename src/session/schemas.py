@@ -51,6 +51,23 @@ class SessionState(BaseModel):
     use_tools: Optional[bool] = None
     tools: List[ToolConfigSchema] = Field(default_factory=list)
 
+    # Detailed behavior specifications
+    target_users: Optional[str] = None  # Who will use this agent
+    greeting_style: Optional[str] = None  # How it greets users
+    conversation_flow: Optional[str] = None  # Detailed flow description
+    example_interactions: Optional[List[str]] = Field(
+        default_factory=list
+    )  # Example conversations
+    constraints: Optional[List[str]] = Field(default_factory=list)  # What NOT to do
+    edge_cases: Optional[List[str]] = Field(default_factory=list)  # Special scenarios
+    escalation_rules: Optional[str] = None  # When to hand off to human
+    success_criteria: Optional[str] = None  # What defines success
+    brand_voice: Optional[str] = None  # Specific brand guidelines
+    verbosity_level: Optional[str] = None  # Concise vs detailed responses
+
+    # Additional context gathered during discovery
+    additional_notes: Optional[str] = None  # Any other important details
+
     # Conversation history
     conversation_history: List[Dict[str, str]] = Field(default_factory=list)
 

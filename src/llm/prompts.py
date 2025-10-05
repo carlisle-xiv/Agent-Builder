@@ -22,7 +22,18 @@ IMPORTANT: You must ALWAYS respond in valid JSON format matching this schema:
     "goals": "agent goals or null",
     "tone": "agent tone/personality or null",
     "use_tools": true/false/null,
-    "tool_details": {}
+    "tool_details": {},
+    "target_users": "who will use this agent or null",
+    "greeting_style": "how it greets users or null",
+    "conversation_flow": "detailed flow description or null",
+    "example_interactions": ["example 1", "example 2"] or null,
+    "constraints": ["constraint 1", "constraint 2"] or null,
+    "edge_cases": ["edge case 1", "edge case 2"] or null,
+    "escalation_rules": "when to escalate or null",
+    "success_criteria": "what defines success or null",
+    "brand_voice": "specific brand guidelines or null",
+    "verbosity_level": "concise/balanced/detailed or null",
+    "additional_notes": "any other important details or null"
   },
   "confidence": {
     "agent_type": 0.0-1.0,
@@ -51,24 +62,54 @@ The user has just started. Your goal is to:
 Extract "agent_type" from their response.
 """,
     ConversationStage.COLLECTING_BASICS: """
-CURRENT STAGE: Collecting Basics
+CURRENT STAGE: Deep Discovery - Understanding Agent Requirements
 
-You need to collect three core pieces of information:
-1. **agent_type**: What kind of agent (customer support, booking, education, etc.)
-2. **goals**: What should this agent help users accomplish?
-3. **tone**: How should the agent sound? (friendly, professional, formal, empathetic, etc.)
+You are in the DISCOVERY phase. Your goal is to DEEPLY understand what the user wants. This is NOT just about collecting basic fields - you need to ask DETAILED, PROBING questions to understand:
+
+1. **Agent Type & Purpose** (What)
+   - What kind of agent?
+   - What specific problem does it solve?
+   - Who are the end users?
+   - What are the top 3-5 tasks it must handle?
+
+2. **Detailed Behavior & Flow** (How)
+   - How should the agent greet users?
+   - What questions should it ask users?
+   - How should it handle different scenarios?
+   - What are the conversation branches/paths?
+   - How does it handle user confusion or errors?
+   - Are there specific phrases or scripts they want?
+
+3. **Tone & Personality** (Voice)
+   - Professional? Casual? Empathetic? Authoritative?
+   - Formal language or conversational?
+   - Should it use humor, emojis, slang?
+   - How verbose? Short and concise or detailed explanations?
+   - Any specific brand voice guidelines?
+
+4. **Edge Cases & Constraints**
+   - What should it NOT do?
+   - How to handle sensitive topics?
+   - Privacy or compliance requirements?
+   - Escalation paths (when to hand off to human)?
+
+5. **Success Criteria**
+   - How will they know the agent is working well?
+   - What's a successful conversation outcome?
+   - Any specific metrics or KPIs?
 
 CURRENT STATE: {state}
-
 WHAT YOU HAVE: {collected}
-WHAT YOU NEED: {missing}
+WHAT YOU STILL NEED TO EXPLORE: {missing}
 
-Rules:
-- Ask about ONE missing field at a time
-- If user provides info for multiple fields, extract all of it
-- Be conversational and natural
-- Give examples to help users think
-- Set stage_complete=true ONLY when all three fields are collected with high confidence
+RULES:
+- Ask ONE focused, specific question at a time
+- After they answer, ask follow-up questions to go deeper
+- Don't move on until you truly understand their vision
+- Use examples to help them think through details
+- Extract all mentioned details into appropriate fields
+- Set stage_complete=true ONLY when you have a COMPREHENSIVE understanding (not just basic fields filled)
+- You should ask AT LEAST 6-8 questions before completing this stage
 """,
     ConversationStage.EXPLORING_TOOLS: """
 CURRENT STAGE: Exploring Tools
@@ -112,18 +153,51 @@ Extract all tool details into "tool_details" object.
 Set stage_complete=true when all tools are fully configured.
 """,
     ConversationStage.REVIEWING_WORKFLOW: """
-CURRENT STAGE: Reviewing Workflow
+CURRENT STAGE: Comprehensive Summary & Confirmation
 
-You've collected all information. Now:
-1. Summarize what you've built
-2. Present the agent design clearly
-3. Ask if they want to make changes
-4. Allow edits to any part
+CRITICAL: Before showing the workflow diagram, you MUST provide a DETAILED SUMMARY of everything you understood.
+
+YOUR TASK:
+1. **Provide a comprehensive summary** covering:
+   - Agent type and core purpose
+   - Detailed goals and tasks it will handle
+   - Tone and personality traits
+   - Specific behaviors you noted
+   - Any constraints or edge cases mentioned
+   - Tool integrations (if any)
+
+2. **Format the summary clearly** with sections like:
+   "Based on our conversation, here's what I understand about your agent:
+   
+   🎯 Purpose: [detailed description]
+   
+   📋 Key Tasks:
+   • [task 1 with details]
+   • [task 2 with details]
+   • [task 3 with details]
+   
+   🗣️ Tone & Style: [detailed description]
+   
+   🔄 Conversation Flow: [how it will interact]
+   
+   ⚠️ Constraints: [what it won't do]
+   
+   🔧 Tools: [if applicable]"
+
+3. **Ask for explicit confirmation**:
+   "Does this accurately capture what you want? Is there anything I missed or should adjust?"
+
+4. **If they confirm**: Present the workflow diagram and ask them to review it
+5. **If they want changes**: Extract the changes and ask clarifying questions
 
 COLLECTED DATA: {full_state}
+WORKFLOW SUMMARY: {workflow_summary}
 
-If user approves: Set stage_complete=true to move to finalization
-If user wants changes: Extract the changes and update the data
+RULES:
+- DO NOT show the workflow diagram until they confirm your understanding is correct
+- Be thorough in your summary
+- Allow them to make any changes before proceeding
+- Set stage_complete=true ONLY after they approve both the summary AND the workflow
 """,
     ConversationStage.FINALIZING: """
 CURRENT STAGE: Finalizing

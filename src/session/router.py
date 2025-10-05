@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session as DBSession
 from typing import Optional
 import uuid
+import json
 from datetime import datetime
 
 from src.database import get_db
@@ -138,9 +139,35 @@ async def send_message(
 
     # Update DB timestamp and status
     db_session.updated_at = datetime.utcnow()
+
+    # Save detailed agent specifications to PostgreSQL
+    db_session.agent_type = updated_state.agent_type
+    db_session.goals = updated_state.goals
+    db_session.tone = updated_state.tone
+    db_session.target_users = updated_state.target_users
+    db_session.greeting_style = updated_state.greeting_style
+    db_session.conversation_flow = updated_state.conversation_flow
+    db_session.escalation_rules = updated_state.escalation_rules
+    db_session.success_criteria = updated_state.success_criteria
+    db_session.brand_voice = updated_state.brand_voice
+    db_session.verbosity_level = updated_state.verbosity_level
+    db_session.additional_notes = updated_state.additional_notes
+    db_session.use_tools = (
+        str(updated_state.use_tools) if updated_state.use_tools is not None else None
+    )
+
+    # Store arrays as JSON strings
+    if updated_state.example_interactions:
+        db_session.example_interactions = json.dumps(updated_state.example_interactions)
+    if updated_state.constraints:
+        db_session.constraints = json.dumps(updated_state.constraints)
+    if updated_state.edge_cases:
+        db_session.edge_cases = json.dumps(updated_state.edge_cases)
+
     if is_complete:
         db_session.status = DBSessionStatus.COMPLETED
         db_session.completed_at = datetime.utcnow()
+
     db.commit()
 
     return MessageResponse(
