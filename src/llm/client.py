@@ -46,7 +46,7 @@ class LLMClient:
 
         # Default models
         self.openai_model = "gpt-5"  # Latest GPT-5
-        self.claude_model = "claude-sonnet-4-20250514"  # Latest Claude Sonnet
+        self.claude_model = "claude-sonnet-4-20250514"  # Latest Claude Sonnet 4
 
     def _route_provider(self, stage: ConversationStage) -> LLMProvider:
         """
@@ -153,12 +153,18 @@ class LLMClient:
 
         try:
             # Call OpenAI with JSON mode
-            response = await self.openai_client.chat.completions.create(
-                model=self.openai_model,
-                messages=messages,
-                temperature=temperature,
-                response_format={"type": "json_object"},
-            )
+            # Note: Some models (gpt-4o, gpt-5) only support temperature=1 (default)
+            call_params = {
+                "model": self.openai_model,
+                "messages": messages,
+                "response_format": {"type": "json_object"},
+            }
+
+            # Only add temperature for models that support it
+            if self.openai_model not in ["gpt-4o", "gpt-5"]:
+                call_params["temperature"] = temperature
+
+            response = await self.openai_client.chat.completions.create(**call_params)
 
             # Parse response
             content = response.choices[0].message.content
