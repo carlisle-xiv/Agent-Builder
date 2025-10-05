@@ -22,6 +22,12 @@ The AI Agent Builder Assistant is a conversational AI system that helps users cr
 
 ## Base URL
 
+**Production:**
+```
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online
+```
+
+**Local Development:**
 ```
 http://localhost:8000
 ```
@@ -31,7 +37,7 @@ http://localhost:8000
 
 ### Full Endpoint Format
 ```
-http://localhost:8000/api/v1/{endpoint}
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1/{endpoint}
 ```
 
 ---
@@ -100,6 +106,10 @@ GET /health
 
 **cURL Example:**
 ```bash
+# Production
+curl https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/health
+
+# Local
 curl http://localhost:8000/health
 ```
 
@@ -136,6 +146,12 @@ POST /api/v1/sessions/create
 
 **cURL Example:**
 ```bash
+# Production
+curl -X POST https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1/sessions/create \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+# Local
 curl -X POST http://localhost:8000/api/v1/sessions/create \
   -H "Content-Type: application/json" \
   -d '{}'
@@ -145,8 +161,14 @@ curl -X POST http://localhost:8000/api/v1/sessions/create \
 ```python
 import requests
 
+# Production
+BASE_URL = "https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
+
+# Local
+# BASE_URL = "http://localhost:8000/api/v1"
+
 response = requests.post(
-    "http://localhost:8000/api/v1/sessions/create",
+    f"{BASE_URL}/sessions/create",
     json={}
 )
 session = response.json()
@@ -197,7 +219,8 @@ POST /api/v1/sessions/{session_id}/message
 
 **cURL Example:**
 ```bash
-curl -X POST http://localhost:8000/api/v1/sessions/550e8400-e29b-41d4-a716-446655440000/message \
+# Production
+curl -X POST https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1/sessions/550e8400-e29b-41d4-a716-446655440000/message \
   -H "Content-Type: application/json" \
   -d '{"message": "I want a customer support agent"}'
 ```
@@ -205,7 +228,7 @@ curl -X POST http://localhost:8000/api/v1/sessions/550e8400-e29b-41d4-a716-44665
 **Python Example:**
 ```python
 response = requests.post(
-    f"http://localhost:8000/api/v1/sessions/{session_id}/message",
+    f"{BASE_URL}/sessions/{session_id}/message",
     json={"message": "I want a customer support agent"}
 )
 result = response.json()
@@ -721,7 +744,11 @@ Here's a complete workflow from creating a session to downloading the final agen
 import requests
 import time
 
-BASE_URL = "http://localhost:8000/api/v1"
+# Production
+BASE_URL = "https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
+
+# Local Development
+# BASE_URL = "http://localhost:8000/api/v1"
 
 # Step 1: Create Session
 print("1. Creating session...")
@@ -849,7 +876,11 @@ print(f"Session ID: {session_id}")
 ```javascript
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:8000/api/v1';
+// Production
+const BASE_URL = 'https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1';
+
+// Local Development
+// const BASE_URL = 'http://localhost:8000/api/v1';
 
 async function createAgent() {
   // Create session
@@ -891,7 +922,11 @@ createAgent();
 ```bash
 #!/bin/bash
 
-BASE_URL="http://localhost:8000/api/v1"
+# Production
+BASE_URL="https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
+
+# Local Development
+# BASE_URL="http://localhost:8000/api/v1"
 
 # Create session
 SESSION_RESPONSE=$(curl -s -X POST "$BASE_URL/sessions/create" -H "Content-Type: application/json" -d '{}')
@@ -943,8 +978,9 @@ echo "Done!"
 
 For issues or questions:
 - Check the logs at `/var/log/agent_builder.log`
-- View API documentation at `http://localhost:8000/docs`
-- Check OpenAPI spec at `http://localhost:8000/openapi.json`
+- **Production API Docs**: `https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/docs`
+- **Local API Docs**: `http://localhost:8000/docs`
+- Check OpenAPI spec at `/openapi.json`
 
 ---
 

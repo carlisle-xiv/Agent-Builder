@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 
 class ExtractedData(BaseModel):
@@ -10,6 +10,19 @@ class ExtractedData(BaseModel):
     tone: Optional[str] = None
     use_tools: Optional[bool] = None
     tool_details: Optional[Dict[str, Any]] = None
+
+    # Detailed specifications
+    target_users: Optional[str] = None
+    greeting_style: Optional[str] = None
+    conversation_flow: Optional[str] = None
+    example_interactions: Optional[List[str]] = None
+    constraints: Optional[List[str]] = None
+    edge_cases: Optional[List[str]] = None
+    escalation_rules: Optional[str] = None
+    success_criteria: Optional[str] = None
+    brand_voice: Optional[str] = None
+    verbosity_level: Optional[str] = None
+    additional_notes: Optional[str] = None
 
 
 class ConfidenceScores(BaseModel):

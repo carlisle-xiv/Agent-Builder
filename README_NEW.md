@@ -72,6 +72,11 @@ python main.py
 
 The server will start on `http://localhost:8000` 🎉
 
+**🌐 Live Production Deployment:**
+```
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online
+```
+
 ---
 
 ## 📖 Usage
@@ -79,6 +84,13 @@ The server will start on `http://localhost:8000` 🎉
 ### Option 1: Interactive API (Recommended)
 
 Visit the interactive API documentation:
+
+**Production:**
+```
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/docs
+```
+
+**Local:**
 ```
 http://localhost:8000/docs
 ```
@@ -86,18 +98,21 @@ http://localhost:8000/docs
 ### Option 2: cURL
 
 ```bash
+# Production URL
+BASE="https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
+
 # Create a session
-curl -X POST http://localhost:8000/api/v1/sessions/create \
+curl -X POST $BASE/sessions/create \
   -H "Content-Type: application/json" \
   -d '{}'
 
 # Send a message
-curl -X POST http://localhost:8000/api/v1/sessions/{session_id}/message \
+curl -X POST $BASE/sessions/{session_id}/message \
   -H "Content-Type: application/json" \
   -d '{"message": "I want a customer support agent"}'
 
 # Download the agent configuration
-curl -O -J "http://localhost:8000/api/v1/prompts/{session_id}/export/download?format=json"
+curl -O -J "$BASE/prompts/{session_id}/export/download?format=json"
 ```
 
 ### Option 3: Python
@@ -105,7 +120,11 @@ curl -O -J "http://localhost:8000/api/v1/prompts/{session_id}/export/download?fo
 ```python
 import requests
 
-BASE_URL = "http://localhost:8000/api/v1"
+# Production
+BASE_URL = "https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
+
+# Local Development
+# BASE_URL = "http://localhost:8000/api/v1"
 
 # Create session
 response = requests.post(f"{BASE_URL}/sessions/create", json={})
@@ -246,6 +265,13 @@ python check_exports.py
 ## 🌐 API Endpoints
 
 ### Base URL
+
+**Production:**
+```
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1
+```
+
+**Local Development:**
 ```
 http://localhost:8000/api/v1
 ```
@@ -347,7 +373,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Documentation**: See `API_DOCUMENTATION.md`
 - **Issues**: Open an issue on GitHub
-- **API Docs**: `http://localhost:8000/docs`
+- **Production API Docs**: `https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/docs`
+- **Local API Docs**: `http://localhost:8000/docs`
 
 ---
 

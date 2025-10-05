@@ -159,7 +159,7 @@ When agent is complete:
 
 ### API Integration
 
-**Base URL**: `http://localhost:8000/api/v1`
+**Base URL**: `https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1`
 
 #### Flow:
 
@@ -437,7 +437,7 @@ App
 
 ## API Endpoints Reference
 
-All endpoints use base URL: `http://localhost:8000/api/v1`
+All endpoints use base URL: `https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1`
 
 ```javascript
 // Create session
@@ -466,7 +466,7 @@ GET /prompts/{session_id}/export/download?format={format}
 ### Creating a Session
 ```javascript
 async function createSession() {
-  const response = await fetch('http://localhost:8000/api/v1/sessions/create', {
+  const response = await fetch('https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1/sessions/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({})
@@ -483,7 +483,7 @@ async function createSession() {
 ```javascript
 async function sendMessage(sessionId, message) {
   const response = await fetch(
-    `http://localhost:8000/api/v1/sessions/${sessionId}/message`,
+    `https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1/sessions/${sessionId}/message`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -502,7 +502,7 @@ async function sendMessage(sessionId, message) {
 ### Downloading Export
 ```javascript
 async function downloadExport(sessionId, format) {
-  const url = `http://localhost:8000/api/v1/prompts/${sessionId}/export/download?format=${format}`;
+  const url = `https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1/prompts/${sessionId}/export/download?format=${format}`;
   const response = await fetch(url);
   const blob = await response.blob();
   

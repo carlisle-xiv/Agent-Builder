@@ -1,6 +1,20 @@
 # Quick Start Guide
 
-## Get Up and Running in 5 Minutes
+## 🌐 Production Deployment
+
+**The API is live at:**
+```
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online
+```
+
+**Try it now:**
+```
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/docs
+```
+
+---
+
+## Get Up and Running Locally in 5 Minutes
 
 ### 1. Install Dependencies
 ```bash
@@ -35,11 +49,25 @@ Server runs on: **http://localhost:8000**
 ## Test It Out
 
 ### Via Browser
-Go to: **http://localhost:8000/docs**
+
+**Production:**
+```
+https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/docs
+```
+
+**Local:**
+```
+http://localhost:8000/docs
+```
 
 ### Via cURL
 ```bash
-# Create session
+# Production
+curl -X POST https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1/sessions/create \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+# Local
 curl -X POST http://localhost:8000/api/v1/sessions/create \
   -H "Content-Type: application/json" \
   -d '{}'
@@ -49,8 +77,14 @@ curl -X POST http://localhost:8000/api/v1/sessions/create \
 ```python
 import requests
 
+# Production
+BASE_URL = "https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
+
+# Local
+# BASE_URL = "http://localhost:8000/api/v1"
+
 # Create session
-response = requests.post("http://localhost:8000/api/v1/sessions/create", json={})
+response = requests.post(f"{BASE_URL}/sessions/create", json={})
 session_id = response.json()["session_id"]
 print(f"Session: {session_id}")
 ```
@@ -62,7 +96,11 @@ print(f"Session: {session_id}")
 ```python
 import requests
 
-BASE = "http://localhost:8000/api/v1"
+# Production
+BASE = "https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/api/v1"
+
+# Local
+# BASE = "http://localhost:8000/api/v1"
 
 # 1. Create session
 r = requests.post(f"{BASE}/sessions/create", json={})
@@ -115,9 +153,10 @@ print("✅ Agent created and saved to my_agent.json!")
 ## Next Steps
 
 1. **Read Full API Docs**: [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
-2. **Run Tests**: `python test_prompt_generator.py`
-3. **View Interactive Docs**: http://localhost:8000/docs
-4. **Check Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md)
+2. **Try Production API**: https://gent-uilder-carlisle-xiv448-pc4od78x.leapcell.online/docs
+3. **Run Tests**: `python test_prompt_generator.py`
+4. **Local Interactive Docs**: http://localhost:8000/docs
+5. **Check Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
